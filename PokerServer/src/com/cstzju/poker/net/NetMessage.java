@@ -19,23 +19,25 @@ public class NetMessage {
 	// 消息头常量定义
 	public static final int HEAD = 0x55;
 
-	// 消息命令定义
-	public static final int HAVE_GROUP = 0x50;
-	public static final int HAVE_GROUP_RESULT = 0x51;
-	public static final int PLAY_GAME = 0x52;
-
-	public static final int GAME_ALREADY = 0x53;
-	public static final int GAME_START = 0x54;
-	public static final int GAME_PLAYING = 0x56;
-	public static final int REGUEST_CARD = 0x57;
-	public static final int PUSH_CARD = 0x58;
-	public static final int CARD_RESULT = 0x59;
-	public static final int GAME_RESULT = 0x61;
+	// 消息命令定义 
+	public static final int JOIN_GAME = 0x50;
+	public static final int CALLED_DZ = 0x50;
+	public static final int PUSH_CARD = 0x50;
+	public static final int GAME_RESULT = 0x50;
+//	public static final int HAVE_GROUP = 0x50;
+//	public static final int HAVE_GROUP_RESULT = 0x51;
+//	public static final int PLAY_GAME = 0x52;
+//
+//	public static final int GAME_ALREADY = 0x53;
+//	public static final int GAME_START = 0x54;
+//	public static final int GAME_PLAYING = 0x56;
+//	public static final int REGUEST_CARD = 0x57;
+//	public static final int PUSH_CARD = 0x58;
+//	public static final int CARD_RESULT = 0x59;
+//	public static final int GAME_RESULT = 0x61;
 
 	// 心跳包命令
 	public static final int KEEP_ALIVE = 0x62;
-	//
-	public static final int FILL_BYTE = 0xFF;
 
 	/**
 	 * 通讯协议BASE类
@@ -141,11 +143,10 @@ public class NetMessage {
 
 	public String getData() {
 		return Converter.BytesToString(data);
-
 	}
 
 	
-	public int computeVerify() {
+	private int computeVerify() {
 		int verify = 0;
 		verify ^= HEAD;
 		verify ^= Converter.LowByte(time);

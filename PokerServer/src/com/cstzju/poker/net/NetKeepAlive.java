@@ -9,7 +9,7 @@ public class NetKeepAlive extends NetMessage {
 	 */
 	public NetKeepAlive() {
 		time = Common.getTime();
-		cmd = GAME_PLAYING;
+		cmd = KEEP_ALIVE;
 		len = 0;
 	}
 

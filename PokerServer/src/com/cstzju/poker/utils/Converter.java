@@ -103,22 +103,22 @@ public class Converter {
 		}
 	}
 
-	public static String BytesToString(byte[] bytes, int offset, int length) {
-		String str = "";
-		try {
-			int stringLength = 0;
-			for (int i = 0; i < length; i++) {
-				if (bytes[offset + i] == 0) {
-					stringLength = i;
-					break;
-				}
-			}
-			str = new String(bytes, offset, stringLength, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		return str;
-	}
+//	public static String BytesToString(byte[] bytes, int offset, int length) {
+//		String str = "";
+//		try {
+//			int stringLength = 0;
+//			for (int i = 0; i < length; i++) {
+//				if (bytes[offset + i] == 0) {
+//					stringLength = i;
+//					break;
+//				}
+//			}
+//			str = new String(bytes, offset, stringLength, "UTF-8");
+//		} catch (UnsupportedEncodingException e) {
+//			e.printStackTrace();
+//		}
+//		return str;
+//	}
 
 	public static String BytesToString(byte[] bytes) {
 		String str = "";

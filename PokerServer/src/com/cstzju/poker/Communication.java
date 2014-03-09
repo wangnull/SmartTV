@@ -9,6 +9,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
+import org.json.JSONException;
+
 import com.cstzju.poker.net.NetPushCard;
 import com.cstzju.poker.utils.CharacterUtil;
 
@@ -54,29 +56,26 @@ public class Communication extends Service {
 
 	@Override
 	public void onCreate() {
-		// TODO Auto-generated method stub
-		super.onCreate();
+		// super.onCreate();
 		Log.i("PokerServer", "Server的onCreate()方法；");
 		udp = new Thread(new Runnable() {
 			@Override
 			public void run() {
-
 				try {
-					Log.i("PokerServer", "服务器建立UDP");
+					Log.i("PokerServer", "服务器建立UDP。");
 					socket = new DatagramSocket(CharacterUtil.udpServerPort);
 					while (true) {
 						receivePacket = new DatagramPacket(dataReceive,
 								dataReceive.length); // 建立UDP连接，将接收到的数据放入数组中
 						socket.receive(receivePacket);
-						Log.i("PokerServer",
-								"已经收到客户端的UDP广播" + receivePacket.getData());
+						Log.i("PokerServer", "已经收到客户端的UDP广播，客户端IP地址是："
+								+ receivePacket.getAddress());
 						dataSend = tcpPort.getBytes();
-
 						sendPacket = new DatagramPacket(dataSend,
 								dataSend.length,
 								receivePacket.getSocketAddress());
 						socket.send(sendPacket);
-						Log.i("PokerServer", "成功发送UDP给客户端");
+						Log.i("PokerServer", "成功发送UDP给客户端。");
 					}
 				} catch (SocketException e) {
 					Log.e("Socket Exception", e.toString());
@@ -91,21 +90,23 @@ public class Communication extends Service {
 		tcp = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				Log.i("PokerServer", "服务器TCP");
+				Log.i("PokerServer", "服务器建立TCP。");
 				ServerSocket server;
 				NetPushCard card = new NetPushCard();
 				try {
 					server = new ServerSocket(CharacterUtil.tcpServerPort);
 					while (true) {
 						Socket client = server.accept();
-						Log.i("PokerServer", "已经读入数据");
 						card.fromStream(client.getInputStream());
+						Log.i("PokerServer", "客户端IP:"
+								+ client.getInetAddress().toString());
 						Log.i("PokerServer",
-								"传送的数据:" + client.getInetAddress().toString()
-										+ card.getData());
-
+								"传送的数据的長度:" + card.getCardNumberArray().length);
 					}
+
 				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (JSONException e) {
 					e.printStackTrace();
 				}
 			}
@@ -117,12 +118,13 @@ public class Communication extends Service {
 	@Override
 	public void onStart(Intent intent, int startId) {
 		super.onStart(intent, startId);
-		Log.i("PokerServer", "Server的onStart()方法；");
+		// Log.i("PokerServer", "Server的onStart()方法；");
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.i("PokerServer", "Server的onStartCommand()方法；");
+
 		return super.onStartCommand(intent, flags, startId);
 
 	}
@@ -130,8 +132,9 @@ public class Communication extends Service {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		Log.i("PokerServer", "Server的onDestroy()方法；");
-		udp.stop();
-		tcp.stop();
+		// Log.i("PokerServer", "Server的onDestroy()方法；");
+		udp.interrupt();
+		tcp.interrupt();
+
 	}
 }

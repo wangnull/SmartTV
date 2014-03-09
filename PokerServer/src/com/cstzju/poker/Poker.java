@@ -17,6 +17,7 @@ public class Poker extends Activity {
 	int left_player_time = 1;
 	int middle_player_time = 2;
 	int right_player_time = 3;
+	Intent serverIntent;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +53,11 @@ public class Poker extends Activity {
 		PokerView left_poker_pushed = (PokerView) findViewById(R.id.left_player_pokerpushed);
 		// 第二个玩家
 		PokerView middle_poker = (PokerView) findViewById(R.id.middle_player_poker);
-		 middle_poker.setPokerBackCount(17);
+		middle_poker.setPokerBackCount(17);
 		PokerView middle_poker_pushed = (PokerView) findViewById(R.id.middle_player_pokerpushed);
 		// 第三个玩家
 		PokerView right_poker = (PokerView) findViewById(R.id.right_player_poker);
-		 right_poker.setPokerBackCount(17);
+		right_poker.setPokerBackCount(17);
 		PokerView right_poker_pushed = (PokerView) findViewById(R.id.right_player_pokerpushed);
 
 		// 洗牌
@@ -76,9 +77,9 @@ public class Poker extends Activity {
 		// alertdialog("" + getWindowManager().getDefaultDisplay().getWidth());
 		// alertdialog("" + getWindowManager().getDefaultDisplay().getHeight());
 
-		
-		Intent startIntent = new Intent(this, Communication.class);  
-        startService(startIntent); 
+		serverIntent = new Intent(this, Communication.class);
+		startService(serverIntent);
+
 	}
 
 	@Override
@@ -100,6 +101,7 @@ public class Poker extends Activity {
 	@Override
 	protected void onStop() {
 		super.onStop();
+		stopService(serverIntent);
 	}
 
 	private void alertdialog(CharSequence message) {

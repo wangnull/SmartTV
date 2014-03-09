@@ -6,6 +6,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import com.cstzju.poker.utils.Common;
 import com.cstzju.poker.utils.Converter;
 
@@ -32,19 +34,16 @@ public class NetPushCard extends NetMessage {
 	}
 
 	public int getCount() throws JSONException {
-		JSONObject jsonObject = new JSONObject(Converter.BytesToString(data, 0,
-				len));
+		JSONObject jsonObject = new JSONObject(Converter.BytesToString(data));
 		return Integer.parseInt(jsonObject.getString("count"));
-
 	}
 
 	public int[] getCardNumberArray() throws JSONException {
 		int count = this.getCount();
 		int[] pokers = new int[count];
-
-		JSONObject jsonObject = new JSONObject(Converter.BytesToString(data, 0,
-				len));
+		JSONObject jsonObject = new JSONObject(Converter.BytesToString(data));
 		JSONArray cards = jsonObject.getJSONArray("cards");
+
 		for (int i = 0; i < count; i++) {
 			pokers[i] = cards.getInt(i);
 		}

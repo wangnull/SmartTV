@@ -1,0 +1,295 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/gameview"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_server"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_margin_top"
+    tools:context=".Poker" >
+
+    <RelativeLayout
+        android:id="@+id/gameview_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:id="@+id/three_border"
+            android:layout_width="240dp"
+            android:layout_height="@dimen/three_border_background_height"
+            android:layout_centerHorizontal="true"
+            android:contentDescription="@string/three_border"
+            android:scaleType="fitXY"
+            android:src="@drawable/three_border" />
+
+        <ImageView
+            android:id="@+id/three_border_first"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/three_border_height"
+            android:layout_alignLeft="@id/three_border"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/three_border"
+            android:src="@drawable/dio_3" />
+
+        <ImageView
+            android:id="@+id/three_border_second"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/three_border_height"
+            android:layout_centerInParent="true"
+            android:contentDescription="@string/three_border"
+            android:src="@drawable/dio_k" />
+
+        <ImageView
+            android:id="@+id/three_border_third"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/three_border_height"
+            android:layout_alignRight="@id/three_border"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/three_border"
+            android:src="@drawable/dio_10" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/playerandpokers"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:orientation="horizontal" >
+
+        <RelativeLayout
+            android:id="@+id/left_palyer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:id="@+id/left_player_time"
+                android:layout_width="@dimen/player_timer_width"
+                android:layout_height="@dimen/player_timer_height"
+                android:layout_alignParentBottom="true"
+                android:contentDescription="@string/player_pic"
+                android:src="@drawable/timer"
+                android:text="@string/player_timer" />
+
+            <ImageView
+                android:id="@+id/left_player_pic"
+                android:layout_width="@dimen/player_pic_width"
+                android:layout_height="@dimen/player_pic_height"
+                android:layout_alignParentBottom="true"
+                android:layout_toRightOf="@id/left_player_time"
+                android:contentDescription="@string/player_pic"
+                android:paddingLeft="@dimen/discount_between_time_playerpic"
+                android:scaleType="fitStart"
+                android:src="@drawable/player"
+                android:text="@string/player_pic" />
+
+            <com.cstzju.poker.PokerView
+                android:id="@+id/left_player_poker"
+                android:layout_width="@dimen/player_poker_width"
+                android:layout_height="@dimen/player_poker_height"
+                android:layout_above="@id/left_player_pic"
+                android:contentDescription="@string/player_poker"
+                android:paddingBottom="@dimen/player_poker_paddingbottom"
+                android:src="@drawable/back" />
+
+            <com.cstzju.poker.PokerView
+                android:id="@+id/left_player_pokerpushed"
+                android:layout_width="@dimen/player_pushedpoker_width"
+                android:layout_height="@dimen/player_pushedpoker_height"
+                android:layout_above="@id/left_player_poker"
+                android:contentDescription="@string/player_pushedpoker"
+                android:paddingBottom="@dimen/player_pushedpoker_paddingbottom"
+                android:src="@drawable/back" />
+
+            <TextView
+                android:id="@+id/left_player_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/left_player_time"
+                android:layout_alignRight="@id/left_player_pic"
+                android:text="@string/init_poker_number"
+                android:textSize="@dimen/playername_and_pokernumber" />
+
+            <TextView
+                android:id="@+id/left_player_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/left_player_number"
+                android:layout_alignRight="@id/left_player_pic"
+                android:text="@string/first_player_name"
+                android:textSize="@dimen/playername_and_pokernumber" />
+
+            <TextView
+                android:id="@+id/left_player_countdown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:paddingBottom="@dimen/player_countdown_above"
+                android:paddingLeft="@dimen/player_countdown_toleftof"
+                android:text="@string/countdown"
+                android:textColor="@color/white"
+                android:textSize="@dimen/player_countdown_size" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/middle_palyer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:id="@+id/middle_player_time"
+                android:layout_width="@dimen/player_timer_width"
+                android:layout_height="@dimen/player_timer_height"
+                android:layout_alignParentBottom="true"
+                android:contentDescription="@string/player_pic"
+                android:src="@drawable/timer"
+                android:text="@string/player_timer" />
+
+            <ImageView
+                android:id="@+id/middle_player_pic"
+                android:layout_width="@dimen/player_pic_width"
+                android:layout_height="@dimen/player_pic_height"
+                android:layout_alignParentBottom="true"
+                android:layout_toRightOf="@id/middle_player_time"
+                android:contentDescription="@string/player_pic"
+                android:paddingLeft="@dimen/discount_between_time_playerpic"
+                android:scaleType="fitStart"
+                android:src="@drawable/player"
+                android:text="@string/player_pic" />
+
+            <com.cstzju.poker.PokerView
+                android:id="@+id/middle_player_poker"
+                android:layout_width="@dimen/player_poker_width"
+                android:layout_height="@dimen/player_poker_height"
+                android:layout_above="@id/middle_player_pic"
+                android:contentDescription="@string/player_poker"
+                android:paddingBottom="@dimen/player_poker_paddingbottom"
+                android:src="@drawable/back" />
+
+            <com.cstzju.poker.PokerView
+                android:id="@+id/middle_player_pokerpushed"
+                android:layout_width="@dimen/player_pushedpoker_width"
+                android:layout_height="@dimen/player_pushedpoker_height"
+                android:layout_above="@id/middle_player_poker"
+                android:contentDescription="@string/player_pushedpoker"
+                android:paddingBottom="@dimen/player_pushedpoker_paddingbottom"
+                android:src="@drawable/back" />
+
+            <TextView
+                android:id="@+id/middle_player_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/middle_player_time"
+                android:layout_alignRight="@id/middle_player_pic"
+                android:text="@string/init_poker_number"
+                android:textSize="@dimen/playername_and_pokernumber" />
+
+            <TextView
+                android:id="@+id/middle_player_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/middle_player_number"
+                android:layout_alignRight="@id/middle_player_pic"
+                android:text="@string/second_player_name"
+                android:textSize="@dimen/playername_and_pokernumber" />
+
+            <TextView
+                android:id="@+id/middle_player_countdown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:paddingBottom="@dimen/player_countdown_above"
+                android:paddingLeft="@dimen/player_countdown_toleftof"
+                android:text="@string/countdown"
+                android:textColor="@color/white"
+                android:textSize="@dimen/player_countdown_size" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/right_palyer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:id="@+id/right_player_time"
+                android:layout_width="@dimen/player_timer_width"
+                android:layout_height="@dimen/player_timer_height"
+                android:layout_alignParentBottom="true"
+                android:contentDescription="@string/player_pic"
+                android:src="@drawable/timer"
+                android:text="@string/player_timer" />
+
+            <ImageView
+                android:id="@+id/right_player_pic"
+                android:layout_width="@dimen/player_pic_width"
+                android:layout_height="@dimen/player_pic_height"
+                android:layout_alignParentBottom="true"
+                android:layout_toRightOf="@id/right_player_time"
+                android:contentDescription="@string/player_pic"
+                android:paddingLeft="@dimen/discount_between_time_playerpic"
+                android:scaleType="fitStart"
+                android:src="@drawable/player"
+                android:text="@string/player_pic" />
+
+            <com.cstzju.poker.PokerView
+                android:id="@+id/right_player_poker"
+                android:layout_width="@dimen/player_poker_width"
+                android:layout_height="@dimen/player_poker_height"
+                android:layout_above="@id/right_player_pic"
+                android:contentDescription="@string/player_poker"
+                android:paddingBottom="@dimen/player_poker_paddingbottom" />
+
+            <com.cstzju.poker.PokerView
+                android:id="@+id/right_player_pokerpushed"
+                android:layout_width="@dimen/player_pushedpoker_width"
+                android:layout_height="@dimen/player_pushedpoker_height"
+                android:layout_above="@id/right_player_poker"
+                android:contentDescription="@string/player_pushedpoker"
+                android:paddingBottom="@dimen/player_pushedpoker_paddingbottom" />
+
+            <TextView
+                android:id="@+id/right_player_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/right_player_time"
+                android:layout_alignRight="@id/right_player_pic"
+                android:text="@string/init_poker_number"
+                android:textSize="@dimen/playername_and_pokernumber" />
+
+            <TextView
+                android:id="@+id/right_player_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/right_player_number"
+                android:layout_alignRight="@id/right_player_pic"
+                android:text="@string/third_player_name"
+                android:textSize="@dimen/playername_and_pokernumber" />
+
+            <TextView
+                android:id="@+id/right_player_countdown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:paddingBottom="@dimen/player_countdown_above"
+                android:paddingLeft="@dimen/player_countdown_toleftof"
+                android:text="@string/countdown"
+                android:textColor="@color/white"
+                android:textSize="@dimen/player_countdown_size" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+</LinearLayout>

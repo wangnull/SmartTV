@@ -15,12 +15,22 @@ public final class CardUtil {
 	private CardUtil() {
 	} // 不能进行实例化
 
-	static public int[] Objects2Id(List<Card> cards) {
+	static public int[] Objects2Pid(List<Card> cards) {
 		int size = cards.size();
 		int[] ids = new int[size];
 		for (int i = 0; i < cards.size(); i++) {
 			Card card = cards.get(i);
 			ids[i] = card.picID;
+		}
+		return ids;
+	}
+
+	static public int[] Objects2Id(List<Card> cards) {
+		int size = cards.size();
+		int[] ids = new int[size];
+		for (int i = 0; i < cards.size(); i++) {
+			Card card = cards.get(i);
+			ids[i] = card.id;
 		}
 		return ids;
 	}

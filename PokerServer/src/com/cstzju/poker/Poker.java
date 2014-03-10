@@ -2,13 +2,17 @@ package com.cstzju.poker;
 
 import com.cstzju.poker.controller.CardDealing;
 import com.cstzju.poker.controller.CardUtil;
+import com.cstzju.poker.utils.CharacterUtil;
 
 import android.os.Bundle;
+import android.os.IBinder;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.util.Log;
 import android.view.Menu;
@@ -19,7 +23,7 @@ import android.widget.TextView;
 
 public class Poker extends Activity {
 	// Service类 Communication 的引用
-	// private Communication communicationREF;
+	private Communication communicationREF;
 	private MyReceiver receiver;
 
 	final int LEFT_PLAYER = 1;
@@ -81,8 +85,7 @@ public class Poker extends Activity {
 		// 启动服务
 		serverIntent = new Intent(this, Communication.class);
 		startService(serverIntent);
-		// bindService(serverIntent, serviceConnection,
-		// Context.BIND_AUTO_CREATE);
+		bindService(serverIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 
 		left_player_poker = (PokerView) findViewById(R.id.left_player_poker);
 		left_player_poker_pushed = (PokerView) findViewById(R.id.left_player_pokerpushed);
@@ -92,33 +95,31 @@ public class Poker extends Activity {
 		right_player_poker_pushed = (PokerView) findViewById(R.id.right_player_pokerpushed);
 
 		// 假设收到3个客户端的连接
-		left_player = new Player("玩家1", "192.168.0.23");
-		middle_player = new Player("玩家2", "192.168.0.24");
-		right_player = new Player("玩家3", "192.168.0.25");
-		left_player_name.setText(left_player.name);
-		middle_player_name.setText(left_player.name);
-		right_player_name.setText(left_player.name);
-
+		// left_player = new Player("玩家1", "192.168.0.23");
+		// middle_player = new Player("玩家2", "192.168.0.24");
+		// right_player = new Player("玩家3", "192.168.0.25");
+		// left_player_name.setText(left_player.name);
+		// middle_player_name.setText(left_player.name);
+		// right_player_name.setText(left_player.name);
 		// 洗牌
-		CardDealing cardDealing = new CardDealing();
-		cardDealing.init();
-		left_player_poker.setPokerBackCount(left_player.cardnumber);
-		left_player_poker_number.setText(left_player.getStringCardNumber());
-		middle_player_poker.setPokerBackCount(middle_player.cardnumber);
-		middle_player_poker_number.setText(middle_player.getStringCardNumber());
-		right_player_poker.setPokerBackCount(right_player.cardnumber);
-		right_player_poker_number.setText(right_player.getStringCardNumber());
-		updateTopThreePokers(cardDealing.getCardTop3().get(0).picID,
-				cardDealing.getCardTop3().get(1).picID, cardDealing
-						.getCardTop3().get(2).picID);
-
+		// CardDealing cardDealing = new CardDealing();
+		// cardDealing.init();
+		// left_player_poker.setPokerBackCount(left_player.cardnumber);
+		// left_player_poker_number.setText(left_player.getStringCardNumber());
+		// middle_player_poker.setPokerBackCount(middle_player.cardnumber);
+		// middle_player_poker_number.setText(middle_player.getStringCardNumber());
+		// right_player_poker.setPokerBackCount(right_player.cardnumber);
+		// right_player_poker_number.setText(right_player.getStringCardNumber());
+		// reDrawTopThreePokers(cardDealing.getCardTop3().get(0).picID,
+		// cardDealing.getCardTop3().get(1).picID, cardDealing
+		// .getCardTop3().get(2).picID);
 		// 把全部牌都出掉
-		left_player.pushPoker(CardUtil.Objects2Id(cardDealing.getCardP1()));
-		reDrawPlayerViewDuringPushPoker(LEFT_PLAYER);
-		middle_player.pushPoker(CardUtil.Objects2Id(cardDealing.getCardP2()));
-		reDrawPlayerViewDuringPushPoker(MIDDLE_PLAYER);
-		right_player.pushPoker(CardUtil.Objects2Id(cardDealing.getCardP3()));
-		reDrawPlayerViewDuringPushPoker(RIGHT_PLAYER);
+		// left_player.pushPoker(CardUtil.Objects2Id(cardDealing.getCardP1()));
+		// reDrawPlayerViewDuringPushPoker(LEFT_PLAYER);
+		// middle_player.pushPoker(CardUtil.Objects2Id(cardDealing.getCardP2()));
+		// reDrawPlayerViewDuringPushPoker(MIDDLE_PLAYER);
+		// right_player.pushPoker(CardUtil.Objects2Id(cardDealing.getCardP3()));
+		// reDrawPlayerViewDuringPushPoker(RIGHT_PLAYER);
 
 		// alertdialog("" + getWindowManager().getDefaultDisplay().getWidth());
 		// alertdialog("" + getWindowManager().getDefaultDisplay().getHeight());
@@ -146,7 +147,7 @@ public class Poker extends Activity {
 	protected void onStop() {
 		super.onStop();
 		stopService(serverIntent);
-		// unbindService(serviceConnection);
+		unbindService(serviceConnection);
 		unregisterReceiver(receiver);
 	}
 
@@ -181,7 +182,7 @@ public class Poker extends Activity {
 		// left_player_poker_number.setText("17");
 	}
 
-	private void updateTopThreePokers(int left_poker_id, int middle_poker_id,
+	private void reDrawTopThreePokers(int left_poker_id, int middle_poker_id,
 			int right_poker_id) {
 		threeTop_left.setImageResource(left_poker_id);
 		threeTop_middle.setImageResource(middle_poker_id);
@@ -196,24 +197,24 @@ public class Poker extends Activity {
 		if (player == LEFT_PLAYER) {
 			left_player_poker_pushed
 					.setPokerAndPokerCount(left_player.pokers_pushed_id);
-			left_player_poker_number.setText(left_player.getStringCardNumber());
 			left_player_poker.setPokerBackCount(left_player.cardnumber);
+			left_player_poker_number.setText(left_player.getStringCardNumber());
 			left_player_poker_pushed.invalidate();
 			left_player_poker.invalidate();
 		} else if (player == MIDDLE_PLAYER) {
 			middle_player_poker_pushed
 					.setPokerAndPokerCount(middle_player.pokers_pushed_id);
+			middle_player_poker.setPokerBackCount(middle_player.cardnumber);
 			middle_player_poker_number.setText(middle_player
 					.getStringCardNumber());
-			middle_player_poker.setPokerBackCount(middle_player.cardnumber);
 			middle_player_poker_pushed.invalidate();
 			middle_player_poker.invalidate();
 		} else if (player == RIGHT_PLAYER) {
 			right_player_poker_pushed
 					.setPokerAndPokerCount(right_player.pokers_pushed_id);
+			right_player_poker.setPokerBackCount(right_player.cardnumber);
 			right_player_poker_number.setText(right_player
 					.getStringCardNumber());
-			right_player_poker.setPokerBackCount(right_player.cardnumber);
 			right_player_poker_pushed.invalidate();
 			right_player_poker.invalidate();
 		}
@@ -230,26 +231,78 @@ public class Poker extends Activity {
 	// }
 
 	// 利用IBinder获取Service实例
-	// ServiceConnection serviceConnection = new ServiceConnection() {
-	// @Override
-	// public void onServiceDisconnected(ComponentName name) {
-	// }
-	//
-	// @Override
-	// public void onServiceConnected(ComponentName name, IBinder service) {
-	// communicationREF = ((Communication.CommunicationBinder) service)
-	// .getService();
-	//
-	// }
-	// };
+	ServiceConnection serviceConnection = new ServiceConnection() {
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+		}
+
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			communicationREF = ((Communication.CommunicationBinder) service)
+					.getService();
+		}
+	};
 
 	// 利用broadcast实现通信，onReceive 10s内没有执行完毕会导致anr。
 	private class MyReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			Bundle bundle = intent.getExtras();
-			int test = bundle.getInt("test");
-			Log.i("PokerServer", test + "aaaaaaaaaaaaaaaaaaaaaa");
+			int step = bundle.getInt("step");
+			if (step == 1) { // 新用户
+				String[] player = bundle.getStringArray("ip");
+				int[] port = bundle.getIntArray("port");
+				// 收到3个客户端的连接
+				left_player = new Player("玩家1", player[0], port[0]);
+				middle_player = new Player("玩家2", player[1], port[1]);
+				right_player = new Player("玩家3", player[2], port[2]);
+				left_player_name.setText(left_player.name);
+				middle_player_name.setText(middle_player.name);
+				right_player_name.setText(right_player.name);
+				// 开始游戏，洗牌，确定地主，更新地主的牌，发送消息给各个客户端。
+				CardDealing cardDealing = new CardDealing();
+				cardDealing.init();
+				// 更新三个玩家牌的数量
+				left_player.setPokerCount(cardDealing.getCardP1().size());
+				middle_player.setPokerCount(cardDealing.getCardP2().size());
+				right_player.setPokerCount(cardDealing.getCardP3().size());
+				reDrawPlayerViewDuringInitGame();
+				reDrawTopThreePokers(cardDealing.getCardTop3().get(0).picID,
+						cardDealing.getCardTop3().get(1).picID, cardDealing
+								.getCardTop3().get(2).picID);
+				// 发送消息给客户端
+				if (communicationREF != null) {
+					communicationREF.sendCardToClientByUsingTCP(left_player.IP,
+							left_player.port,
+							CardUtil.Objects2Id(cardDealing.getCardP1()));
+					// communicationREF.sendCardToClientByUsingTCP(
+					// middle_player.IP,
+					// CardUtil.Objects2Id(cardDealing.getCardP2()));
+					// communicationREF.sendCardToClientByUsingTCP(
+					// right_player.IP,
+					// CardUtil.Objects2Id(cardDealing.getCardP3()));
+				} else {
+					Log.i("PokerServer", "onReceive():communicationREF is null");
+				}
+			} else if (step == 3) {// 客户端的出牌
+
+			}
 		}
+	}
+
+	private void reDrawPlayerViewDuringInitGame() {
+		// if (player == LEFT_PLAYER) {
+		left_player_poker.setPokerBackCount(left_player.cardnumber);
+		left_player_poker_number.setText(left_player.getStringCardNumber());
+		left_player_poker.invalidate();
+		// } else if (player == MIDDLE_PLAYER) {
+		middle_player_poker.setPokerBackCount(middle_player.cardnumber);
+		middle_player_poker_number.setText(middle_player.getStringCardNumber());
+		middle_player_poker.invalidate();
+		// } else if (player == RIGHT_PLAYER) {
+		right_player_poker.setPokerBackCount(right_player.cardnumber);
+		right_player_poker_number.setText(right_player.getStringCardNumber());
+		right_player_poker.invalidate();
+		// }
 	}
 }

@@ -53,7 +53,7 @@ public class PokerView extends View {
 		return result;
 	}
 
-	public void setPokerAndPokerCount(int[] id, int count) {
+	public void setPokerAndPokerCount(int[] id) {
 		this.poker_count = id.length;
 		poker_id = new int[poker_count];
 		for (int i = 0; i < poker_count; i++) {

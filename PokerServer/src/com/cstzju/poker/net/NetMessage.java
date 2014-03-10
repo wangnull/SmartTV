@@ -101,7 +101,7 @@ public class NetMessage {
 		// Log.i("test", "len:" + len);
 		stream.write(len);
 		if (len > 0) {
-			Log.i("test", "data:" + Converter.BytesToString(data));
+			// Log.i("test", "data:" + Converter.BytesToString(data));
 			stream.write(data);
 		}
 		stream.write(computeVerify());

@@ -12,28 +12,29 @@ import com.cstzju.poker.controller.Card.Number;
 
 public final class CardUtil {
 
-	private CardUtil() {} // 不能进行实例化
+	private CardUtil() {
+	} // 不能进行实例化
 
-	static public int[] Objects2Id(List<Card> cards){
+	static public int[] Objects2Id(List<Card> cards) {
 		int size = cards.size();
-		int []ids = new int[size];
-		for(int i=0;i<cards.size();i++){
+		int[] ids = new int[size];
+		for (int i = 0; i < cards.size(); i++) {
 			Card card = cards.get(i);
-			ids[i] = card.id;
+			ids[i] = card.picID;
 		}
 		return ids;
 	}
-	
-	static public List<Card> Id2Object(int ids[]){
+
+	static public List<Card> Id2Object(int ids[]) {
 		List<Card> cards = new ArrayList<Card>();
-		for(int i=0;i<ids.length;i++){
+		for (int i = 0; i < ids.length; i++) {
 			int id = ids[i];
 			Card card = new Card(id);
 			cards.add(card);
 		}
 		return cards;
 	}
-	
+
 	static public int getPicID(int id) {
 		int picID = 0;
 		switch (id) {

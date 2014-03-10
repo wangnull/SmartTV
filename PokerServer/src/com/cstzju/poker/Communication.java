@@ -1,7 +1,6 @@
 package com.cstzju.poker;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -16,16 +15,13 @@ import com.cstzju.poker.utils.CharacterUtil;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.IBinder;
-import android.os.Message;
 import android.util.Log;
-import android.widget.Toast;
 
 public class Communication extends Service {
 	// This is the object that receives interactions from clients. See
 	// RemoteService for a more complete example.
-	private final IBinder mBinder = new LocalBinder();
+	// private final IBinder mBinder = new CommunicationBinder();
 
 	DatagramSocket socket;
 	DatagramPacket receivePacket;
@@ -42,22 +38,45 @@ public class Communication extends Service {
 	 * Class for clients to access. Because we know this service always runs in
 	 * the same process as its clients, we don't need to deal with IPC.
 	 */
-	public class LocalBinder extends Binder {
-		Communication getService() {
-			return Communication.this;
-		}
-	}
+	// public class CommunicationBinder extends Binder {
+	// Communication getService() {
+	// return Communication.this;
+	// }
+	// }
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		// return null;
-		return mBinder;
+		return null;
+		// return mBinder;
 	}
 
 	@Override
 	public void onCreate() {
-		// super.onCreate();
-		Log.i("PokerServer", "Server的onCreate()方法；");
+		super.onCreate();
+		// Log.i("PokerServer", "Server的onCreate()方法；");
+
+	}
+
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		// Log.i("PokerServer", "Server的onStartCommand()方法；");
+		teset();
+		// startUDPConnection();
+		// startTCPConnection();
+		return super.onStartCommand(intent, flags, startId);
+
+	}
+
+	@Override
+	public void onDestroy() {
+		// Log.i("PokerServer", "Server的onDestroy()方法；");
+		udp.interrupt();
+		tcp.interrupt();
+		super.onDestroy();
+
+	}
+
+	public void startUDPConnection() {
 		udp = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -86,7 +105,9 @@ public class Communication extends Service {
 			}
 		});
 		udp.start();
+	}
 
+	public void startTCPConnection() {
 		tcp = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -103,7 +124,6 @@ public class Communication extends Service {
 						Log.i("PokerServer",
 								"传送的数据的長度:" + card.getCardNumberArray().length);
 					}
-
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (JSONException e) {
@@ -112,29 +132,13 @@ public class Communication extends Service {
 			}
 		});
 		tcp.start();
-
 	}
 
-	@Override
-	public void onStart(Intent intent, int startId) {
-		super.onStart(intent, startId);
-		// Log.i("PokerServer", "Server的onStart()方法；");
+	public void teset() {
+		Intent intent = new Intent();
+		intent.setAction("android.intent.action.MY_RECEIVER");
+		intent.putExtra("test", 1234);
+		sendBroadcast(intent);
 	}
 
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		Log.i("PokerServer", "Server的onStartCommand()方法；");
-
-		return super.onStartCommand(intent, flags, startId);
-
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		// Log.i("PokerServer", "Server的onDestroy()方法；");
-		udp.interrupt();
-		tcp.interrupt();
-
-	}
 }

@@ -21,14 +21,21 @@ public class NetGameResult extends NetMessage {
 	 * @throws JSONException
 	 * @throws UnsupportedEncodingException
 	 */
-	public void setData(int result) throws JSONException,
-			UnsupportedEncodingException {
+	public void setData(int result) {
 		// JSON Data Example: {"result":1}
 		JSONObject jsonObject = new JSONObject();
-		jsonObject.put("result", result);
+		try {
+			jsonObject.put("result", result);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		len = jsonObject.toString().length();
 		data = new byte[len];
-		data = jsonObject.toString().getBytes("UTF-8");
+		try {
+			data = jsonObject.toString().getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public int getIntResult() throws NumberFormatException, JSONException {

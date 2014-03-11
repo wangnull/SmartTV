@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import android.util.Log;
-
 import com.cstzju.poker.utils.Converter;
 
 public class NetMessage {

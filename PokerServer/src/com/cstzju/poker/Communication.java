@@ -5,16 +5,12 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.ArrayList;
-
 import org.json.JSONException;
 
-import com.cstzju.poker.controller.Card;
-import com.cstzju.poker.controller.CardUtil;
+import com.cstzju.poker.net.NetGameResult;
 import com.cstzju.poker.net.NetPushCard;
 import com.cstzju.poker.utils.CharacterUtil;
 
@@ -22,7 +18,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.Message;
 import android.util.Log;
 
 public class Communication extends Service {
@@ -31,18 +26,17 @@ public class Communication extends Service {
 	private final IBinder mBinder = new CommunicationBinder();
 
 	private final String TAG = "PokerServer";
+	Thread udp = null;
+	Thread receiveTcp = null;
+	Thread sendTcp = null;
+	String[] player = new String[3];
+	final int Port_f = CharacterUtil.tcpPort;
+
 	DatagramSocket socket;
 	DatagramPacket receivePacket;
 	DatagramPacket sendPacket;
 	byte[] dataReceive = new byte[1024];
 	byte[] dataSend;
-	final String tcpPort = "" + CharacterUtil.tcpServerPort;
-	Thread udp;
-	Thread tcp;
-	Thread sendTcp;
-
-	String[] player = new String[3];
-	int[] port = new int[3];
 
 	/**
 	 * Class for clients to access. Because we know this service always runs in
@@ -71,16 +65,22 @@ public class Communication extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		// Log.i("PokerServer", "Server的onStartCommand()方法；");
 		startUDPConnection();
-		// startTCPConnection();
+		// startTcpToReceiveCards();
 		return super.onStartCommand(intent, flags, startId);
 	}
 
 	@Override
 	public void onDestroy() {
 		// Log.i("PokerServer", "Server的onDestroy()方法；");
-		udp.interrupt();
-		tcp.interrupt();
-		sendTcp.interrupt();
+		if (udp != null && udp.isAlive()) {
+			udp.interrupt();
+		}
+		if (receiveTcp != null && receiveTcp.isAlive()) {
+			receiveTcp.interrupt();
+		}
+		if (sendTcp != null && sendTcp.isAlive()) {
+			sendTcp.interrupt();
+		}
 		super.onDestroy();
 	}
 
@@ -97,41 +97,35 @@ public class Communication extends Service {
 								dataReceive.length); // 建立UDP连接，将接收到的数据放入数组中
 						socket.receive(receivePacket);
 						Log.i(TAG,
-								"已经收到客户端的UDP广播，客户端IP地址是："
+								"收到客户端的UDP广播，客户端IP地址是："
 										+ receivePacket.getAddress());
 
-						player[3 - i] = receivePacket.getAddress().toString();
-						port[3 - i] = receivePacket.getPort();
+						player[3 - i] = receivePacket.getAddress()
+								.getHostAddress();
 						switch (3 - i) {
 						case 0:
 							i--;
-							Log.i(TAG, "已加入第" + (3 - i) + "个玩家");
+							sendUdpResponseToClient(i);
 							break;
 						case 1:
 							if (!player[1].equals(player[0])) {
 								i--;
-								Log.i(TAG, "已加入第" + (3 - i) + "个玩家");
+								sendUdpResponseToClient(i);
 							}
 							break;
 						case 2:
 							if ((!player[1].equals(player[0]))
 									&& (!player[2].equals(player[1]))) {
 								i--;
-								Log.i(TAG, "已加入第" + (3 - i) + "个玩家");
+								sendUdpResponseToClient(i);
 							}
 							break;
 						default:
 							break;
 						}
-						dataSend = tcpPort.getBytes();
-						sendPacket = new DatagramPacket(dataSend,
-								dataSend.length,
-								receivePacket.getSocketAddress());
-						socket.send(sendPacket);
-						Log.i(TAG, "成功发送UDP给客户端。");
 					}
 					Log.i(TAG, "玩家已满3人，开始初始化游戏");
-					initThreePlayer(player, port);
+					initThreePlayer(player);
 					player = null;
 				} catch (SocketException e) {
 					Log.e("Socket Exception", e.toString());
@@ -143,49 +137,77 @@ public class Communication extends Service {
 		udp.start();
 	}
 
-	// private void startTCPConnection() {
-	// tcp = new Thread(new Runnable() {
-	// @Override
-	// public void run() {
-	// // Log.i("PokerServer", "服务器建立TCP。");
-	// ServerSocket server;
-	// NetPushCard card = new NetPushCard();
-	// try {
-	// server = new ServerSocket(CharacterUtil.tcpServerPort);
-	// while (true) {
-	// Socket client = server.accept();
-	// card.fromStream(client.getInputStream());
-	// // Log.i("PokerServer", "客户端IP:"
-	// // + client.getInetAddress().toString());
-	// // Log.i("PokerServer",
-	// // "传送的数据的長度:" + card.getCardNumberArray().length);
-	// }
-	// } catch (IOException e) {
-	// e.printStackTrace();
-	// }
-	// }
-	// });
-	// tcp.start();
-	// }
+	private void sendUdpResponseToClient(int i) {// 发送UDP反馈给玩家,重复发送的UDP不予响应
+		Log.i(TAG, "已加入第" + (3 - i) + "个玩家");
+		try {
+			socket = new DatagramSocket(CharacterUtil.udpServerPort);
+			dataSend = String.valueOf(CharacterUtil.tcpPort).getBytes();
+			sendPacket = new DatagramPacket(dataSend, dataSend.length,
+					receivePacket.getSocketAddress());
+			socket.send(sendPacket);
+			Log.i(TAG, "成功发送UDP给客户端。");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-	private void initThreePlayer(String[] IP, int[] port) {
+	}
+
+	public void startTcpToReceiveCards() {// 准备接受玩家的牌，该thread需要手动stop
+		receiveTcp = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Log.i("PokerServer", "服务器建立TCP准备收牌。");
+				ServerSocket server;
+				NetPushCard card = new NetPushCard();
+				try {
+					server = new ServerSocket(CharacterUtil.tcpPort);
+					while (true) {
+						Socket client = server.accept();
+						card.fromStream(client.getInputStream());
+						playerPushedCard(card.getCardNumberArray());
+						Log.i(TAG, "收到数据:"
+								+ client.getInetAddress().getHostAddress()
+								+ "。牌的数量：" + card.getCardNumberArray().length);
+						for (int i = 0; i < card.getCardNumberArray().length; i++) {
+							Log.i(TAG,
+									String.valueOf(card.getCardNumberArray()[i]));
+						}
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		receiveTcp.start();
+	}
+
+	private void initThreePlayer(String[] IP) {// 初始化三个玩家
 		Intent intent = new Intent();
 		intent.setAction("android.intent.action.MY_RECEIVER");
 		intent.putExtra("step", 1);
 		intent.putExtra("ip", IP);
-		intent.putExtra("port", port);
 		sendBroadcast(intent);
 		intent = null;
 	}
 
-	public void sendCardToClientByUsingTCP(String IP, int port, int[] cards) {
-		// for (int i = 0; i < cards.length; i++) {
-		// Log.i("PokerServer", "发送的牌为：" + cards[i] + "");
-		// }
-		final String IP_final = IP;
+	private void playerPushedCard(int[] pushedcards) {// 玩家出的牌
+		Intent intent = new Intent();
+		intent.setAction("android.intent.action.MY_RECEIVER");
+		intent.putExtra("step", 3);
+		intent.putExtra("cards", pushedcards);
+		sendBroadcast(intent);
+		intent = null;
+	}
+
+	public void sendCardToClient(String IP, int[] cards) {
+		// final String IP_f = InetAddress.getByName("112.15.173.232")
+		// .getHostAddress();
+		// final int Port_f = 80;
+		final String IP_f = IP;
 		final int[] cards_final = cards;
-		final int Port_final = CharacterUtil.tcpClientPort;
-		Log.i(TAG, "發送給" + IP_final + ":" + Port_final);
+
 		sendTcp = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -198,19 +220,42 @@ public class Communication extends Service {
 					e.printStackTrace();
 				}
 				try {
-					Socket socket = new Socket(IP_final, Port_final);
+					Socket socket = new Socket(IP_f, Port_f);
 					OutputStream os = socket.getOutputStream();
 					card.toStream(os);
-					Log.i(TAG, "数据被编码成字节流发送给" + IP_final + ":" + Port_final);
+					Log.i(TAG, "发牌给" + IP_f);
 					os.close();
 					socket.close();
 				} catch (IOException e) {
 					e.printStackTrace();
-				} finally {
-
 				}
 			}
 		});
 		sendTcp.start();
+	}
+
+	public void sendGameResultToClinet(String IP, int status) {
+		final int status_f = status;
+		final String ip_f = IP;
+		receiveTcp.interrupt();// 停止接收牌
+		sendTcp = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				NetGameResult gameresult = new NetGameResult();
+				gameresult.setData(status_f);
+				try {
+					Socket socket = new Socket(ip_f, Port_f);
+					OutputStream os = socket.getOutputStream();
+					gameresult.toStream(os);
+					Log.i(TAG, "发送给" + ip_f + "游戏结果:" + status_f);
+					os.close();
+					socket.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		sendTcp.start();
+		startUDPConnection();// 接收UDP广播，开始新一轮游戏
 	}
 }

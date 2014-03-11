@@ -1,7 +1,5 @@
 package com.cstzju.poker.controller;
 
-import com.cstzju.poker.R;
-
 //定义一张牌的基本属性
 
 public class Card {

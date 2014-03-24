@@ -56,6 +56,7 @@ public class Poker extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		// Log.i("PokerServer", "Poker的onCreate()");
 		// 隐藏标题栏
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		// 隐藏状态栏
@@ -77,6 +78,7 @@ public class Poker extends Activity {
 
 	@Override
 	protected void onStart() {
+		// Log.i("PokerServer", "Poker的onStart()");
 		super.onStart();
 		// 注册广播
 		receiver = new MyReceiver();
@@ -85,8 +87,8 @@ public class Poker extends Activity {
 		registerReceiver(receiver, filter);
 		// 启动服务
 		serverIntent = new Intent(this, Communication.class);
-		startService(serverIntent);
-		bindService(serverIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+		startService(serverIntent);// onCreate() onStartCommand()
+		bindService(serverIntent, serviceConnection, Context.BIND_AUTO_CREATE);// onCreate()
 
 		// alertdialog("" + getWindowManager().getDefaultDisplay().getWidth());
 		// alertdialog("" + getWindowManager().getDefaultDisplay().getHeight());
@@ -95,26 +97,30 @@ public class Poker extends Activity {
 
 	@Override
 	protected void onResume() {
+		// Log.i("PokerServer", "Poker的onResume()");
 		super.onResume();
 	}
 
 	@Override
 	protected void onRestart() {
+		// Log.i("PokerServer", "Poker的onRestart()");
 		super.onRestart();
 	}
 
 	@Override
 	protected void onPause() {
 		// onPause(),onReSume(),OnStop()。数据储存，及游戏计时器的开关
+		// Log.i("PokerServer", "Poker的onPause()");
 		super.onPause();
 	}
 
 	@Override
 	protected void onStop() {
-		super.onStop();
+		// Log.i("PokerServer", "Poker的onStop()");
 		unregisterReceiver(receiver);
-		unbindService(serviceConnection);
-		stopService(serverIntent);
+		unbindService(serviceConnection);// onUnbind() onDestroy()
+		stopService(serverIntent);// onDestroy()
+		super.onStop();
 	}
 
 	// private void alertdialog(CharSequence message) {

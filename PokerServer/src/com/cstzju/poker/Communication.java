@@ -52,18 +52,18 @@ public class Communication extends Service {
 	public IBinder onBind(Intent intent) {
 		// return null;
 		return mBinder;
+
 	}
 
 	@Override
 	public void onCreate() {
-		super.onCreate();
 		// Log.i("PokerServer", "Server的onCreate()方法；");
-
+		super.onCreate();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		// Log.i("PokerServer", "Server的onStartCommand()方法；");
+		// Log.i("PokerServer", "Server的onStartCommand()方法；服务器建立UDP。");
 		startUDPConnection();
 		// startTcpToReceiveCards();
 		return super.onStartCommand(intent, flags, startId);
@@ -72,15 +72,48 @@ public class Communication extends Service {
 	@Override
 	public void onDestroy() {
 		// Log.i("PokerServer", "Server的onDestroy()方法；");
-		if (udp != null && udp.isAlive()) {
+		if (udp != null) {
+			// Log.i("PokerServer", "udp != null");
+			if (udp.isAlive()) {
+				// Log.i("PokerServer", "udp.isAlive()");
+				synchronized (udp) {
+					try {
+
+						udp.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 			udp.interrupt();
 		}
-		if (receiveTcp != null && receiveTcp.isAlive()) {
+		if (receiveTcp != null) {
+			// Log.i("PokerServer", "receiveTcp != null");
+			if (receiveTcp.isAlive()) {
+				synchronized (receiveTcp) {
+					try {
+						receiveTcp.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 			receiveTcp.interrupt();
 		}
-		if (sendTcp != null && sendTcp.isAlive()) {
+		if (sendTcp != null) {
+			// Log.i("PokerServer", "sendTcp != null");
+			if (sendTcp.isAlive()) {
+				synchronized (sendTcp) {
+					try {
+						sendTcp.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 			sendTcp.interrupt();
 		}
+
 		super.onDestroy();
 	}
 
@@ -90,8 +123,13 @@ public class Communication extends Service {
 			public void run() {
 				try {
 					// Log.i("PokerServer", "服务器建立UDP。");
+					// bind failed: EADDRINUSE (Address already in use)
+					// http://bytes.com/topic/python/answers/37733-getting-socket-bind-exception-but-no-actual-error
+					// http://www.eoeandroid.com/thread-196953-1-1.html
+					// https://community.oracle.com/thread/1149986
 					socket = new DatagramSocket(CharacterUtil.udpServerPort);
 					int i = 3;
+
 					while (i > 0) {
 						receivePacket = new DatagramPacket(dataReceive,
 								dataReceive.length); // 建立UDP连接，将接收到的数据放入数组中
@@ -156,6 +194,7 @@ public class Communication extends Service {
 		receiveTcp = new Thread(new Runnable() {
 			@Override
 			public void run() {
+
 				Log.i("PokerServer", "服务器建立TCP准备收牌。");
 				ServerSocket server;
 				NetPushCard card = new NetPushCard();
